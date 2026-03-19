@@ -2,8 +2,8 @@
   "name": "tennis-data-pipeline",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
-    "ghcr.io/devcontainers/features/google-cloud-cli:1": {},
     "ghcr.io/devcontainers/features/terraform:1": {}
   },
-  "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh"
+  "remoteUser": "root",
+  "postCreateCommand": "bash .devcontainer/install.sh"
 }
