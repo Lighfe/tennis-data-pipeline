@@ -2,7 +2,8 @@
   "name": "tennis-data-pipeline",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
-    "ghcr.io/devcontainers/features/terraform:1": {}
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/devcontainers/features/git-lfs:1": {}
   },
   "remoteUser": "root",
   "postCreateCommand": "bash .devcontainer/install.sh"
