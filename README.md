@@ -132,7 +132,7 @@ Edit `terraform/terraform.tfvars`:
 
 ```hcl
 project_id = "your-gcp-project-id"
-region     = "europe-west1"
+region     = "us-central1"
 ```
 
 ---

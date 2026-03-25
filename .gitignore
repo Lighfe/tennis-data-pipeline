@@ -214,3 +214,5 @@ __marimo__/
 terraform.tfstate
 terraform.tfstate.backup
 *.tfvars
+.venv/
+*.pyc
