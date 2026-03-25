@@ -12,12 +12,6 @@ echo 'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.clou
 apt-get update
 apt-get install -y google-cloud-cli
 
-# Authenticate with GCP
-if [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-    echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > /tmp/gcp-key.json
-    gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-    gcloud config set project "$(echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['project_id'])")"
-else
-    echo "WARNING: GOOGLE_APPLICATION_CREDENTIALS_JSON secret not set. Skipping GCP authentication."
-    echo "See README.md Step 4 for instructions."
-fi
+# Run auth (also registers it to run on every Codespace login)
+bash /workspaces/tennis-data-pipeline/.devcontainer/auth.sh
+echo 'source /workspaces/tennis-data-pipeline/.devcontainer/auth.sh' >> ~/.bash_profile
