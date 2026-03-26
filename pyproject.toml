@@ -9,3 +9,8 @@ dependencies = [
     "google-cloud-storage>=3.10.1",
     "requests>=2.32.5",
 ]
+
+[dependency-groups]
+dev = [
+    "apache-airflow>=3.1.8",
+]

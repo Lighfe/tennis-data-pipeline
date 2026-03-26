@@ -3,8 +3,12 @@
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
     "ghcr.io/devcontainers/features/terraform:1": {},
-    "ghcr.io/devcontainers/features/git-lfs:1": {}
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    }
   },
   "remoteUser": "root",
-  "postCreateCommand": "bash .devcontainer/install.sh"
+  "postCreateCommand": "bash .devcontainer/install.sh",
+  "postStartCommand": "bash /workspaces/tennis-data-pipeline/.devcontainer/auth.sh"
 }

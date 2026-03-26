@@ -14,4 +14,8 @@ apt-get install -y google-cloud-cli
 
 # Run auth (also registers it to run on every Codespace login)
 bash /workspaces/tennis-data-pipeline/.devcontainer/auth.sh
-echo 'source /workspaces/tennis-data-pipeline/.devcontainer/auth.sh' >> ~/.bash_profile
+echo 'export DOCKER_API_VERSION=1.43' >> ~/.bashrc
+if [ -n "$CODESPACE_NAME" ]; then
+    echo "AIRFLOW__WEBSERVER__BASE_URL=https://${CODESPACE_NAME}-8080.app.github.dev" >> /workspaces/tennis-data-pipeline/airflow/.env
+fi
+echo 'source /workspaces/tennis-data-pipeline/.devcontainer/auth.sh' >> ~/.bashrc
