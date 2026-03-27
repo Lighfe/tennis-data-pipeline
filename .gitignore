@@ -1,5 +1,7 @@
 # Service Account Key
-*.json
+*credentials*.json
+*key*.json
+/tmp/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -216,3 +218,11 @@ terraform.tfstate.backup
 *.tfvars
 .venv/
 *.pyc
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
+# Airflow
+airflow/logs/

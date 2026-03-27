@@ -34,3 +34,9 @@ resource "google_bigquery_dataset" "raw" {
   location                   = var.region
   delete_contents_on_destroy = true
 }
+
+resource "google_bigquery_dataset" "prod" {
+  dataset_id                 = "tennis_prod"
+  location                   = var.region
+  delete_contents_on_destroy = true
+}
