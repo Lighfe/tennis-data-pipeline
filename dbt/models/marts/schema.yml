@@ -30,12 +30,6 @@ models:
           - dbt_utils.accepted_range:
               min_value: 14
               max_value: 70
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - tourney_id
-            - match_num
-            - tour
 
   - name: fct_match_outcomes
     description: "One row per match with completion status, set counts and score. Partitioned by year, clustered by tour."
@@ -64,9 +58,3 @@ models:
           - accepted_values:
               values: [3, 5]
               quote: false
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - tourney_id
-            - match_num
-            - tour

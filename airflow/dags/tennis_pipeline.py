@@ -106,7 +106,10 @@ with DAG(
 
     dbt_run = BashOperator(
         task_id='dbt_run',
-        bash_command='echo "dbt placeholder — replace with actual dbt command"',
+        bash_command=(
+            'dbt run --profiles-dir /opt/airflow/dbt --project-dir /opt/airflow/dbt && '
+            'dbt test --profiles-dir /opt/airflow/dbt --project-dir /opt/airflow/dbt'
+        ),
     )
 
     group_end_tasks >> dbt_run  # type: ignore

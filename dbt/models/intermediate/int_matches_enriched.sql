@@ -6,29 +6,33 @@ enriched as (
     select
         *,
 
-        -- Match completion flag
-        case
-            when score is null then null
-            when score like '%RET%' then false
-            when score like '%W/O%' then false
-            when score like '%DEF%' then false
-            when score like '%ABD%' then false
-            when score like '%UNK%' then false
-            else true
-        end as is_completed,
+-- Match completion flag
+case
+    when score is null then null
+    when upper(score) like '%RET%'       then false
+    when upper(score) like '%W/O%'       then false
+    when upper(score) like '%DEF%'       then false
+    when upper(score) like '%ABD%'       then false
+    when upper(score) like '%UNK%'       then false
+    when upper(score) like '%WALKOVER%'  then false
+    when upper(score) like '%PLAYED AND%' then false
+    else true
+end as is_completed,
 
-        -- Count sets played by counting space-separated tokens after stripping suffixes
-        -- Only for completed matches, NULL otherwise
-        case
-            when score is null then null
-            when score like '%RET%' or score like '%W/O%' or score like '%DEF%'
-              or score like '%ABD%' or score like '%UNK%' then null
-            else (
-                array_length(
-                    split(trim(score), ' ')
-                )
-            )
-        end as sets_played
+-- Count sets played
+case
+    when score is null then null
+    when upper(score) like '%RET%'        then null
+    when upper(score) like '%W/O%'        then null
+    when upper(score) like '%DEF%'        then null
+    when upper(score) like '%ABD%'        then null
+    when upper(score) like '%UNK%'        then null
+    when upper(score) like '%WALKOVER%'   then null
+    when upper(score) like '%PLAYED AND%' then null
+    else array_length(
+        split(trim(score), ' ')
+    )
+end as sets_played
 
     from base
 ),

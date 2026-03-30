@@ -1,5 +1,6 @@
 FROM apache/airflow:3.1.8
 
-# Install pipeline dependencies
+USER airflow
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
+ENV PATH="/home/airflow/.local/bin:${PATH}"

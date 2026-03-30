@@ -1,0 +1,7 @@
+{
+  "terminal.integrated.env.linux": {
+    "DBT_PROFILES_DIR": "/root/.dbt",
+    "GOOGLE_APPLICATION_CREDENTIALS": "/tmp/gcp-key.json",
+    "GCP_PROJECT_ID": "tennis-data-pipeline"
+  }
+}

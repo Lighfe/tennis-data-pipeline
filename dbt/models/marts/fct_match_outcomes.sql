@@ -38,3 +38,5 @@ select
     minutes
 
 from base
+
+where sets_played <= best_of or sets_played is null

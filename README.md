@@ -5,10 +5,13 @@ An end-to-end batch data pipeline built on ATP and WTA tennis data (Jeff Sackman
 ## Research Questions
 
 - How has the age of successful players changed over time? (ATP vs WTA comparison)
-- Most common match outcomes — likelihood of going to a third/fourth/fifth set
+- Match outcomes — likelihood of going to a deciding set (best-of-3 matches)
+
+## Dashboard
+
+The Looker Studio dashboard is available at: https://lookerstudio.google.com/s/mBMWQxVjtaI
 
 ## Architecture
-
 ```
 GitHub CSVs (ATP + WTA)
         │
@@ -19,7 +22,7 @@ GitHub CSVs (ATP + WTA)
         ├── download_{year}     — download CSV from GitHub (one task per year)
         ├── upload_{year}       — upload to GCS, delete local file
         ├── load_bigquery       — load all CSVs via wildcard URI (WRITE_TRUNCATE)
-        └── dbt_run             — run dbt transformations
+        └── dbt_run             — run dbt transformations + tests
                 │
                 ▼
         Looker Studio Dashboard
@@ -34,7 +37,6 @@ GitHub CSVs (ATP + WTA)
 - **Dashboard:** Looker Studio
 
 ## Project Structure
-
 ```
 tennis-data-pipeline/
 ├── .devcontainer/
@@ -43,13 +45,14 @@ tennis-data-pipeline/
 ├── airflow/
 │   ├── Dockerfile              # extends apache/airflow:3.1.8
 │   ├── docker-compose.yaml
+│   ├── .env.example            # template for required environment variables
 │   ├── requirements.txt        # pipeline + dbt dependencies for the container
 │   └── dags/
 │       └── tennis_pipeline.py  # main DAG
 ├── dbt/
 │   ├── dbt_project.yml
+│   ├── profiles.yml            # dbt connection profile (uses env vars, safe to commit)
 │   ├── packages.yml
-│   ├── analyses/               # example queries (not materialized)
 │   ├── models/
 │   │   ├── staging/            # stg_atp_matches, stg_wta_matches
 │   │   ├── intermediate/       # int_matches_unionized, int_matches_enriched
@@ -61,10 +64,12 @@ tennis-data-pipeline/
 │   └── load_bigquery.py        # load GCS files into BigQuery
 ├── schemas/
 │   └── matches.json            # BigQuery schema for raw tables
-└── terraform/
-    ├── main.tf
-    ├── variables.tf
-    └── terraform.tfvars.example
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   └── terraform.tfvars.example
+├── Makefile                    # convenience targets for setup
+└── README.md
 ```
 
 ---
@@ -128,43 +133,68 @@ Fork this repository to your own GitHub account so you can create Codespaces sec
 The devcontainer automatically:
 - Installs Terraform, Google Cloud CLI (`gcloud`), and `uv`
 - Authenticates with GCP using the secret from Step 4
-- Adds `dbt` and Docker API version to `PATH` via `~/.bashrc`
+- Installs recommended VS Code extensions (dbt Power User, Makefile Tools)
 
 **Open a new terminal** after the build completes to ensure all environment variables are loaded. You should see:
-
 ```
 GCP authentication complete.
 ```
 
 Verify the setup:
-
 ```bash
 terraform version
 gcloud version
-uv --version
 gcloud projects describe <your-project-id>
 ```
 
 ---
 
-### Step 6 — Configure Terraform variables
+### Step 6 — Configure variables
 
+**Terraform:**
 ```bash
 cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 ```
 
 Edit `terraform/terraform.tfvars`:
-
 ```hcl
 project_id   = "your-gcp-project-id"
 region       = "us-central1"
 bucket_name  = "your-unique-bucket-name"
 ```
 
+**Airflow:**
+```bash
+cp airflow/.env.example airflow/.env
+```
+
+Edit `airflow/.env`:
+```bash
+GCP_PROJECT_ID=your-gcp-project-id
+GCS_BUCKET=your-unique-bucket-name
+```
+
 ---
 
-### Step 7 — Provision cloud infrastructure
+### Step 7 — Provision infrastructure and start the pipeline
 
+#### Option A — Using Make (recommended)
+```bash
+make infra    # provision GCS bucket + BigQuery datasets
+make airflow  # build and start Airflow
+make dbt      # install dbt packages and verify connection
+```
+
+Or run everything in one command:
+```bash
+make all
+```
+
+Run `make help` to see all available targets.
+
+#### Option B — Manual steps
+
+**Provision infrastructure:**
 ```bash
 cd terraform
 terraform init
@@ -172,98 +202,43 @@ terraform plan
 terraform apply
 ```
 
-This creates:
-- A GCS bucket for raw data
-- A BigQuery dataset `tennis_raw` for raw tables
-- A BigQuery dataset `tennis_prod` for dbt models
-
----
-
-### Step 8 — Configure the Airflow environment
-
-Create `airflow/.env` with the following contents (replace values with your own):
-
-```bash
-AIRFLOW_UID=0
-GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp/key.json
-GCP_PROJECT_ID=your-gcp-project-id
-GCS_BUCKET=your-unique-bucket-name
-GCS_PREFIX=raw
-BQ_DATASET=tennis_raw
-AIRFLOW_PROJ_DIR=/workspaces/tennis-data-pipeline/airflow
-```
-
-The `AIRFLOW__WEBSERVER__BASE_URL` line is written automatically by `install.sh` using the Codespace name — do not add it manually.
-
----
-
-### Step 9 — Start Airflow
-
+**Start Airflow:**
 ```bash
 cd airflow
 docker compose up --build -d
 ```
 
-Wait ~2 minutes for all services to start, then check:
-
+Wait ~2 minutes for services to become healthy:
 ```bash
 docker compose ps
 ```
 
 The `airflow-apiserver` and `airflow-scheduler` should show `(healthy)`.
 
-Open the Airflow UI via the **Ports** tab in Codespaces (port 8080). Log in with `airflow` / `airflow`.
+**Install dbt packages:**
+```bash
+docker compose exec airflow-scheduler \
+  dbt deps --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt
+```
 
 ---
 
-### Step 10 — Set Airflow Variables
+### Step 8 — Open the Airflow UI
 
-In the Airflow UI go to **Admin → Variables** and create:
+Open the Airflow UI via the **Ports** tab in Codespaces (port 8080). Log in with `airflow` / `airflow`.
+
+Go to **Admin → Variables** and create:
 
 | Key | Value | Description |
 |-----|-------|-------------|
 | `tennis_start_year` | `1995` | First year to download |
 | `tennis_end_year` | `2024` | Last year to download |
 
-The DAG re-parses within ~30 seconds. The graph should show two parallel task groups (ATP + WTA) with the correct number of year tasks.
-
 ---
 
-### Step 11 — Configure dbt
+### Step 9 — Trigger the pipeline
 
-dbt requires a `profiles.yml` file at `~/.dbt/profiles.yml`. Run the interactive setup:
-
-```bash
-cd dbt
-uv run dbt init dbt
-```
-
-When prompted:
-- **Database**: `bigquery`
-- **Authentication**: `service_account`
-- **Keyfile**: `/tmp/gcp-key.json`
-- **Project**: your GCP project ID
-- **Dataset**: `tennis_prod`
-- **Threads**: `4`
-- **Location**: `us-central1`
-
-Then install dbt packages:
-
-```bash
-uv run dbt deps
-```
-
-Verify the connection:
-
-```bash
-uv run dbt debug
-```
-
----
-
-### Step 12 — Trigger the pipeline
-
-In the Airflow UI, enable and trigger the `tennis_pipeline` DAG. The full run for 30 years of data takes approximately 20-30 minutes.
+Enable and trigger the `tennis_pipeline` DAG in the Airflow UI. The full run for 30 years of data takes approximately 20-30 minutes.
 
 Once complete, verify in BigQuery:
 - `tennis_raw.atp_matches` and `tennis_raw.wta_matches` should exist with data
@@ -271,16 +246,15 @@ Once complete, verify in BigQuery:
 
 ---
 
-### Step 13 — View the dashboard
+### Step 10 — View the dashboard
 
-The Looker Studio dashboard is available at: `<link>`
+The Looker Studio dashboard is available at: https://lookerstudio.google.com/s/mBMWQxVjtaI
 
 ---
 
 ## Restarting the Codespace
 
 After a Codespace **restart** (not rebuild), GCP auth is re-applied automatically via `postStartCommand`. Open a new terminal to ensure `~/.bashrc` is sourced, then restart Airflow:
-
 ```bash
 cd airflow
 docker compose up -d

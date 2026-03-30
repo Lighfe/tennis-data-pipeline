@@ -32,6 +32,7 @@ x-airflow-common:
     # Mount our pipeline scripts so the DAG can import them
     - ../pipeline:/opt/airflow/pipeline
     - ../schemas:/opt/airflow/schemas
+    - ../dbt:/opt/airflow/dbt
     # Mount the GCP key from the host into the container
     - /tmp/gcp-key.json:/tmp/gcp/key.json:ro
   user: "${AIRFLOW_UID:-50000}:0"

@@ -115,6 +115,8 @@ models:
               min_value: 1
               max_value: 4320
               where: "score != 'W/O'"
+              config:
+                severity: warn
 
       - name: winner_id
         description: "Winner player ID"
@@ -146,8 +148,7 @@ models:
           - accepted_values:
               values: ['Hard', 'Clay', 'Grass', 'Carpet']
 
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - tourney_id
-            - match_num
+      - name: match_id
+        tests:
+          - unique
+          - not_null

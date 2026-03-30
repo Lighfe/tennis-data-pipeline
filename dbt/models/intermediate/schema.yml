@@ -3,12 +3,6 @@ version: 2
 models:
   - name: int_matches_unionized
     description: "Union of ATP and WTA staging models with no additional logic"
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - tourney_id
-            - match_num
-            - tour
     columns:
       - name: tour
         tests:

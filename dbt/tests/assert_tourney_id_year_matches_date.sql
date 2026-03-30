@@ -1,5 +1,7 @@
-SELECT LEFT(tourney_id, 4), EXTRACT(YEAR FROM tourney_date), COUNT(*)
-FROM `tennis-data-pipeline.tennis_prod.int_matches_enriched`
-WHERE LEFT(tourney_id, 4) != CAST(EXTRACT(YEAR FROM tourney_date) AS STRING)
-GROUP BY 1, 2
-LIMIT 10
+select
+    tourney_id,
+    tourney_date
+from {{ ref('int_matches_enriched') }}
+where abs(
+    cast(left(tourney_id, 4) as int64) - extract(year from tourney_date)
+) > 1

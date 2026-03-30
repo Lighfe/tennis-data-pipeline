@@ -8,6 +8,7 @@ renamed as (
         'wta' as tour,
 
         -- identifiers
+        {{ dbt_utils.generate_surrogate_key(["'wta'", 'tourney_id', 'match_num', 'winner_id', 'loser_id']) }} as match_id,
         tourney_id,
         tourney_name,
         tourney_level,
