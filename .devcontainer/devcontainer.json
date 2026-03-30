@@ -8,6 +8,21 @@
       "moby": false
     }
   },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "innoverio.vscode-dbt-power-user",
+        "ms-vscode.makefile-tools"
+      ],
+      "settings": {
+        "terminal.integrated.env.linux": {
+          "DBT_PROFILES_DIR": "/root/.dbt",
+          "GOOGLE_APPLICATION_CREDENTIALS": "/tmp/gcp-key.json",
+          "GCP_PROJECT_ID": "tennis-data-pipeline"
+        }
+      }
+    }
+  },
   "remoteUser": "root",
   "postCreateCommand": "bash .devcontainer/install.sh",
   "postStartCommand": "bash /workspaces/tennis-data-pipeline/.devcontainer/auth.sh"
