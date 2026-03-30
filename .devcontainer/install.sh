@@ -4,6 +4,9 @@ set -e
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Install Python dependencies into local venv
+cd /workspaces/tennis-data-pipeline && uv sync --dev
+
 # Install gcloud via apt
 rm -f /tmp/cloud.google.gpg
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --yes --dearmor -o /tmp/cloud.google.gpg

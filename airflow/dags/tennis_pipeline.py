@@ -29,12 +29,16 @@ END_YEAR   = int(Variable.get('tennis_end_year',   default_var=2024))
 # ── Task callables ─────────────────────────────────────────────────────────────
 def _cleanup_gcs(tour: str) -> None:
     from google.cloud import storage
+    from google.cloud.exceptions import NotFound
     client = storage.Client()
     bucket = client.bucket(GCS_BUCKET)
     blobs = bucket.list_blobs(prefix=f"{GCS_PREFIX}/{tour}_matches_")
     for blob in blobs:
-        blob.delete()
-        print(f"Deleted {blob.name}")
+        try:
+            blob.delete()
+            print(f"Deleted {blob.name}")
+        except NotFound:
+            print(f"Already deleted: {blob.name}")
 
 
 def _download(tour: str, year: int) -> None:
