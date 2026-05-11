@@ -32,6 +32,9 @@ GitHub CSVs (ATP + WTA)
 - **Transformations:** dbt Core (staging → intermediate → marts)
 - **Dashboard:** Looker Studio
 
+<img width="1894" height="336" alt="tech_stack" src="https://github.com/user-attachments/assets/26147bb2-8cea-405b-9ead-67d1574139d7" />
+
+
 ## Project Structure
 ```
 tennis-data-pipeline/
