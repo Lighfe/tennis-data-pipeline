@@ -7,10 +7,6 @@ An end-to-end batch data pipeline built on ATP and WTA tennis data (Jeff Sackman
 - How has the age of successful players changed over time? (ATP vs WTA comparison)
 - Match outcomes — likelihood of going to a deciding set (best-of-3 matches)
 
-## Dashboard
-
-The Looker Studio dashboard is available at: https://lookerstudio.google.com/s/mBMWQxVjtaI
-
 ## Architecture
 ```
 GitHub CSVs (ATP + WTA)
